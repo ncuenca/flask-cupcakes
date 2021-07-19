@@ -1,7 +1,7 @@
 """Flask app for Cupcakes"""
 
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask.json import jsonify
 from models import db, connect_db, Cupcake
 
@@ -12,6 +12,13 @@ app.config['SQLALCHEMY_ECHO'] = True
 
 connect_db(app)
 db.create_all()
+
+@app.route('/')
+def get_homepage():
+    '''Displays homepage'''
+
+    return render_template('index.html')
+
 
 @app.route('/api/cupcakes')
 def get_all_cupcakes():
@@ -40,7 +47,7 @@ def create_cupcake():
     '''Returns JSON with data on created cupcake and code 201
        {cupcake : {id, flavor, size, rating, image}}
     '''
-
+    
     # question: should we change request.json['image']? Which format is better?
     flavor = request.json['flavor']
     size = request.json['size']
