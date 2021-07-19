@@ -41,10 +41,13 @@ def create_cupcake():
        {cupcake : {id, flavor, size, rating, image}}
     '''
 
+    # question: should we change request.json['image']? Which format is better?
     flavor = request.json['flavor']
     size = request.json['size']
     rating = request.json['rating']
-    image = request.json['image'] or None
+    image = request.json['image'] if 'image' in request.json.keys() else None
+    # image = request.json['image'] or None
+
 
     cupcake = Cupcake(flavor=flavor, size=size, rating=rating, image=image)
     
@@ -55,3 +58,52 @@ def create_cupcake():
 
     return (jsonify(cupcake=serialized), 201)
 
+@app.route('/api/cupcakes/<int:cupcake_id>', methods=['PATCH'])
+def update_cupcake(cupcake_id):
+    """Returns JSON with data updated on a specific cupcake
+        {cupcake : {id, flavor, size, rating, image}}
+    """
+
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+
+    # for key in ['flavor', 'size', 'rating', 'image']:
+    #     request.json.get(key, cupcake.key)
+
+    cupcake.flavor = request.json.get('flavor', cupcake.flavor) # this is the best way: straightforward
+    # setattr(cupcake, key, request.json[key]) # option 2 (review in further study)
+
+    # didn't work: because request.json['rating'] throws an error unless rating is in JSON data
+    # cupcake.flavor = request.json['flavor'] or cupcake.flavor
+    # cupcake.size = request.json['size'] or cupcake.size
+    # cupcake.rating = request.json['rating'] or cupcake.rating
+    # cupcake.image = request.json['image'] or cupcake.image
+
+    # didn't work: why?
+    # for key in request.json.keys():
+    #     print(key)
+    #     print(request.json[f'{key}'])
+    #     cupcake.key = request.json[f'{key}']
+
+    # this worked
+    cupcake.flavor = request.json['flavor'] if 'flavor' in request.json.keys() else cupcake.flavor
+    cupcake.size = request.json['size'] if 'size' in request.json.keys() else cupcake.size
+    cupcake.rating = request.json['rating'] if 'rating' in request.json.keys() else cupcake.rating
+    cupcake.image = request.json['image'] if 'image' in request.json.keys() else cupcake.image  
+
+    db.session.commit()
+
+    serialized = cupcake.serialize()
+    
+    return jsonify(cupcake=serialized) 
+
+@app.route('/api/cupcakes/<int:cupcake_id>', methods=['DELETE'])
+def delete_cupcake(cupcake_id):
+    """Handles the deletion of the data for an existing cupcake. 
+       Returns JSON: {message: "Deleted"} """
+
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+
+    db.session.delete(cupcake)
+    db.session.commit() 
+
+    return (jsonify(message='Deleted'))     

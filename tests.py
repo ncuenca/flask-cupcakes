@@ -107,3 +107,40 @@ class CupcakeViewsTestCase(TestCase):
             })
 
             self.assertEqual(Cupcake.query.count(), 2)
+
+    def test_update_cupcake(self):
+        """Tests that cupcake data is updated correctly"""
+        with app.test_client() as client:
+            url = f"/api/cupcakes/{self.cupcake.id}"
+            resp = client.patch(url, json={
+                    "flavor": "TestFlavor3",
+                    "size": "TestSize3"
+            })
+
+            self.assertEqual(resp.status_code, 200)
+
+            data = resp.json
+
+            self.assertEqual(data, {
+                "cupcake": {
+                    "id": self.cupcake.id,
+                    "flavor": "TestFlavor3",
+                    "size": "TestSize3",
+                    "rating": 5,
+                    "image": "http://test.com/cupcake.jpg"
+                }
+            })
+
+    def test_delete_cupcake(self):
+        """Tests the deletion of cupcake data. 
+            This should result in a count of 0 data entries"""
+        with app.test_client() as client:
+            url = f"/api/cupcakes/{self.cupcake.id}"
+            resp = client.delete(url)
+
+            self.assertEqual(resp.status_code, 200)
+
+            self.assertEqual(Cupcake.query.count(), 0)
+
+# Test what happens when a user deletes or updates something that doesn't exist. Should get a 404 error.
+# Since starting at 1, use 0 as your test for a cupcake that cannot be found.
