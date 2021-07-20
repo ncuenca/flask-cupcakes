@@ -10,7 +10,7 @@ const $newCupcakeImage = $("#new-cupcake-image");
  * Gets submitted cupcake values and calls functions to add/display
  * new cupcake
  */
-function displayAndAddCupcake(evt) {
+function handleCupcakeSubmit(evt) {
     evt.preventDefault();
 
     const flavor = $newCupcakeFlavor.val();
@@ -19,7 +19,7 @@ function displayAndAddCupcake(evt) {
     const image = $newCupcakeImage.val();
 
     addCupcake(flavor, size, rating, image);
-    displayCupcake(flavor, size, rating);
+    appendCupcakeToHTML(flavor, size, rating);
 }
 
 /**
@@ -35,9 +35,9 @@ async function addCupcake(flavor, size, rating, image) {
 /**
  * Takes in cupcake values and adds it to HTML
  */
-function displayCupcake(flavor, size, rating) {
+function appendCupcakeToHTML(flavor, size, rating) {
     $cupcakesList.append(`<li>${flavor} ${size} ${rating}</li>`)
 };
 
 
-$("#submit-cupcake").click(displayAndAddCupcake);
+$("#submit-cupcake").click(handleCupcakeSubmit);
